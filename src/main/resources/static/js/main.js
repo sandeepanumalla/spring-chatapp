@@ -104,6 +104,17 @@ function onMessageReceived(payload) {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
+function onLeave(event) {
+    const leaverMessage = {
+        type: 'LEAVE'
+    }
+    console.log("leaving...")
+    messageElement.classList.add('event-message');
+    message.content = message.sender + ' left!';
+    stompClient.disconnect(() => {
+        console.log('Disconnected from WebSocket');
+    });
+}
 
 function getAvatarColor(messageSender) {
     var hash = 0;
@@ -114,5 +125,6 @@ function getAvatarColor(messageSender) {
     return colors[index];
 }
 
+document.addEventListener("onbeforeunload", onLeave, true)
 usernameForm.addEventListener('submit', connect, true)
 messageForm.addEventListener('submit', sendMessage, true)

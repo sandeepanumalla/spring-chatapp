@@ -18,14 +18,16 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
+        ChatMessage chatMessage = (ChatMessage) headerAccessor.getSessionAttributes().get("username");
+        String username = chatMessage.getSender();
         if(username != null) {
             log.info("User disconnected: {}", username);
-            var chatMessage = ChatMessage.builder()
-                    .type(MessageType.LEAVER)
+            headerAccessor.getSessionAttributes().remove(username);
+            var chatMessageBuilder = ChatMessage.builder()
+                    .type(MessageType.LEAVE)
                     .sender(username)
                     .build();
-            messageTemplate.convertAndSend("/topic/public", chatMessage);
+            messageTemplate.convertAndSend("/topic/public", chatMessageBuilder);
         }
     }
 }
